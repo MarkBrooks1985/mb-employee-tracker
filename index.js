@@ -29,7 +29,7 @@ function startEmpDB() {
           "Add Department",
           "Add Role",
           "Add Employee",
-          "Update Employee",
+          "Update Employee Role",
           "Exit",
         ],
       },
@@ -56,7 +56,7 @@ function startEmpDB() {
           addEmployee();
           break;
         case "Update Employee Role":
-          updateEmployeeRole();
+          buildRoleArray();
           break;
       }
     });
@@ -167,11 +167,36 @@ function addEmployee() {
   });
 }
 
-function updateEmployeeRole() {
-  db.query(
-    "SELECT employee.first_name, employee.last_name, role.title, employee.id FROM employee JOIN role ON employee.id = role.id;"
-  );
+var employeeIDArray = [];
+
+function buildEmployeeIDArray() {
+  const query = `SELECT DISTINCT CONCAT(x.first_name, " ", x.last_name) AS employee_name, x.id AS employee_id
+   FROM employee e
+   LEFT JOIN employee x
+   ON e.id = x.id`;
+  db.query(query, function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      employeeIDArray.push(res[i]);
+    }
+  });
 }
+
+function buildRoleArray() {
+  const query = `SELECT id, title FROM role;`;
+  const empQuery = `SELECT first_name, last_name AS employee_name FROM employee;`;
+  db.query(query, function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      roleArray.push(res[i].title);
+    }
+  });
+}
+
+// function updateEmployeeRole() {
+//   var employeeDetails = []
+//   db.query("SELECT DISTINCT CONCAT(x.first_name, " ", x.last_name) AS employee_name, x.id AS employee_id FROM employee e LEFT JOIN employee x ON e.id = x.id;");
+// }
 
 // function updateEmployee() {
 //   db.query(
