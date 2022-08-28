@@ -55,8 +55,8 @@ function startEmpDB() {
         case "Add Employee":
           addEmployee();
           break;
-        case "Update Employee":
-          updateEmployee();
+        case "Update Employee Role":
+          updateEmployeeRole();
           break;
       }
     });
@@ -167,50 +167,56 @@ function addEmployee() {
   });
 }
 
-function updateEmployee() {
+function updateEmployeeRole() {
   db.query(
-    "SELECT employee.last_name, role.title FROM employee JOIN role ON employee.id = role.id;",
-    (err, res) => {
-      if (err) throw err;
-
-      inquirer
-        .prompt([
-          {
-            name: "last_name",
-            type: "rawlist",
-            choices: function () {
-              var lastName = [];
-              for (var i = 0; i < res.length; i++) {
-                lastName.push(res[i].lastName);
-              }
-              return lastName;
-            },
-            message: "What is the Employees last name",
-          },
-          {
-            name: "role",
-            type: "rawlist",
-            message: "What is the Employees New Role",
-            choices: addRole(),
-          },
-        ])
-        .then(function (answers) {
-          var roleId = addRole().indexOf(answers.role) + 1;
-          db.query(
-            "UPDATE employee SET WHERE ?",
-            {
-              lastName: answers.lastName,
-              roleId: roleId,
-            },
-            function (err) {
-              if (err) throw err;
-              console.table(answers);
-              startEmpDB();
-            }
-          );
-        });
-    }
+    "SELECT employee.first_name, employee.last_name, role.title, employee.id FROM employee JOIN role ON employee.id = role.id;"
   );
 }
+
+// function updateEmployee() {
+//   db.query(
+//     "SELECT employee.last_name, role.title FROM employee JOIN role ON employee.id = role.id;",
+//     (err, res) => {
+//       if (err) throw err;
+
+//       inquirer
+//         .prompt([
+//           {
+//             name: "last_name",
+//             type: "rawlist",
+//             choices: function () {
+//               var lastName = [];
+//               for (var i = 0; i < res.length; i++) {
+//                 lastName.push(res[i].lastName);
+//               }
+//               return lastName;
+//             },
+//             message: "What is the Employees last name",
+//           },
+//           {
+//             name: "role",
+//             type: "rawlist",
+//             message: "What is the Employees New Role",
+//             choices: addRole(),
+//           },
+//         ])
+//         .then(function (answers) {
+//           var roleId = addRole().indexOf(answers.role) + 1;
+//           db.query(
+//             "UPDATE employee SET WHERE ?",
+//             {
+//               lastName: answers.lastName,
+//               roleId: roleId,
+//             },
+//             function (err) {
+//               if (err) throw err;
+//               console.table(answers);
+//               startEmpDB();
+//             }
+//           );
+//         });
+//     }
+//   );
+// }
 
 startEmpDB();
