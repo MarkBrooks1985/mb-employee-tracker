@@ -1,11 +1,16 @@
+/* Drops the db if it exists, the creates it, and then uses it */
 DROP DATABASE IF EXISTS employee_db;
 CREATE DATABASE employee_db;
 USE employee_db;
+
+/* creates the department table */
 
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(30) NOT NULL
 );
+
+/* creates the role table */
 
 CREATE TABLE role (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -16,6 +21,8 @@ CREATE TABLE role (
     REFERENCES department(id)
     ON DELETE SET NULL
 );
+
+/* creates the employee table */
 
 CREATE TABLE employee (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
