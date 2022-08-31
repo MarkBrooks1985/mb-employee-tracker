@@ -1,20 +1,41 @@
-// get the client
+// required packages
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
+
+// connects to the database etc
 
 const db = mysql.createConnection(
   {
     host: "localhost",
-    // MySQL username,
+
     user: "root",
-    // MySQL password
+
     password: "Pass123",
     database: "employee_db",
   },
-  console.log(`Connected to the employee_db database.`)
+  console.log(`Connected to the Employee Database Systems.`)
 );
 
-// ask user bunch of questions.
+// ascii art title that is logged and rendered to the terminal
+
+console.log(
+  " _____           _                    _____             _              _____         _             "
+);
+console.log(
+  "|   __|_____ ___| |___ _ _ ___ ___   |_   _|___ ___ ___| |_ ___ ___   |   __|_ _ ___| |_ ___ _____ "
+);
+console.log(
+  "|   __|     | . | | . | | | -_| -_|    | | |  _| .'|  _| '_| -_|  _|  |__   | | |_ -|  _| -_|     |"
+);
+console.log(
+  "|_____|_|_|_|  _|_|___|_  |___|___|    |_| |_| |__,|___|_,_|___|_|    |_____|_  |___|_| |___|_|_|_|"
+);
+console.log(
+  "            |_|       |___|                                                 |___|                  "
+);
+
+// function that starts the prompts
+
 function startEmpDB() {
   inquirer
     .prompt([
@@ -56,11 +77,28 @@ function startEmpDB() {
           addEmployee();
           break;
         case "Update Employee Role":
-          buildRoleArray();
+          callEmployee();
+          break;
+        case "exit":
+          connection.end();
+          console.log(
+            "Connection Terminated, please input npm start to reconnect"
+          );
           break;
       }
     });
 }
+
+// function that views all employees
+
+function viewAllEmp() {
+  db.query("SELECT * FROM employee", function (err, results) {
+    console.table(results);
+    startEmpDB();
+  });
+}
+
+// function that views all departments
 
 function viewAllDepartments() {
   db.query("SELECT * FROM department", function (err, results) {
@@ -68,6 +106,8 @@ function viewAllDepartments() {
     startEmpDB();
   });
 }
+
+// function that views all roles
 
 function viewAllRoles() {
   db.query(
@@ -78,6 +118,8 @@ function viewAllRoles() {
     }
   );
 }
+
+// function that adds a department
 
 function addDepartment() {
   const questions = [
@@ -99,7 +141,7 @@ function addDepartment() {
   });
 }
 
-// have three questions (title, salary, department id) for add role
+// function that adds a new role
 
 function addRole() {
   const questions = [
@@ -131,7 +173,8 @@ function addRole() {
   });
 }
 
-// employe same as role but have four questions (first, last, role id, manager id)
+// function that adds a new employee
+
 function addEmployee() {
   const questions = [
     {
@@ -167,81 +210,53 @@ function addEmployee() {
   });
 }
 
-var employeeIDArray = [];
+// function that updates an employees role
 
-function buildEmployeeIDArray() {
-  const query = `SELECT DISTINCT CONCAT(x.first_name, " ", x.last_name) AS employee_name, x.id AS employee_id
-   FROM employee e
-   LEFT JOIN employee x
-   ON e.id = x.id`;
-  db.query(query, function (err, res) {
-    if (err) throw err;
-    for (let i = 0; i < res.length; i++) {
-      employeeIDArray.push(res[i]);
-    }
+const callEmployee = () => {
+  db.query("SELECT * FROM employee", (err, employees) => {
+    if (err) console.log(err);
+    employees = employees.map((employee) => {
+      return {
+        name: `${employee.first_name} ${employee.last_name}`,
+        value: employees,
+      };
+    });
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "selectEmployee",
+          message: "Select the Employee you wish to update.",
+          choices: employees,
+        },
+        {
+          type: "list",
+          name: "selectNewRole",
+          message: "Please select the employees new role.",
+          choices: "roles",
+        },
+      ])
+      .then((data) => {
+        db.query(
+          "UPDATE employee SET ? WHERE ?",
+          [
+            {
+              role_id: data.selectNewRole,
+            },
+            {
+              id: data.selectEmployee,
+            },
+          ],
+          function (err) {
+            if (err) throw err;
+          }
+        );
+        console.log("Database has been updated!");
+        viewAllRoles();
+      });
   });
-}
+};
 
-function buildRoleArray() {
-  const query = `SELECT id, title FROM role;`;
-  const empQuery = `SELECT first_name, last_name AS employee_name FROM employee;`;
-  db.query(query, function (err, res) {
-    if (err) throw err;
-    for (let i = 0; i < res.length; i++) {
-      roleArray.push(res[i].title);
-    }
-  });
-}
-
-// function updateEmployeeRole() {
-//   var employeeDetails = []
-//   db.query("SELECT DISTINCT CONCAT(x.first_name, " ", x.last_name) AS employee_name, x.id AS employee_id FROM employee e LEFT JOIN employee x ON e.id = x.id;");
-// }
-
-// function updateEmployee() {
-//   db.query(
-//     "SELECT employee.last_name, role.title FROM employee JOIN role ON employee.id = role.id;",
-//     (err, res) => {
-//       if (err) throw err;
-
-//       inquirer
-//         .prompt([
-//           {
-//             name: "last_name",
-//             type: "rawlist",
-//             choices: function () {
-//               var lastName = [];
-//               for (var i = 0; i < res.length; i++) {
-//                 lastName.push(res[i].lastName);
-//               }
-//               return lastName;
-//             },
-//             message: "What is the Employees last name",
-//           },
-//           {
-//             name: "role",
-//             type: "rawlist",
-//             message: "What is the Employees New Role",
-//             choices: addRole(),
-//           },
-//         ])
-//         .then(function (answers) {
-//           var roleId = addRole().indexOf(answers.role) + 1;
-//           db.query(
-//             "UPDATE employee SET WHERE ?",
-//             {
-//               lastName: answers.lastName,
-//               roleId: roleId,
-//             },
-//             function (err) {
-//               if (err) throw err;
-//               console.table(answers);
-//               startEmpDB();
-//             }
-//           );
-//         });
-//     }
-//   );
-// }
+// the intial call to start the application
 
 startEmpDB();
