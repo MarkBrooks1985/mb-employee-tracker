@@ -82,7 +82,7 @@ function startEmpDB() {
         case "exit":
           connection.end();
           console.log(
-            "Connection Terminated, please input npm start to reconnect"
+            "Connection Terminated, please input node index.js to reconnect"
           );
           break;
       }
@@ -218,42 +218,51 @@ const callEmployee = () => {
     employees = employees.map((employee) => {
       return {
         name: `${employee.first_name} ${employee.last_name}`,
-        value: employees,
+        value: employee.id,
       };
     });
-    inquirer
-      .prompt([
-        {
-          type: "list",
-          name: "selectEmployee",
-          message: "Select the Employee you wish to update.",
-          choices: employees,
-        },
-        {
-          type: "list",
-          name: "selectNewRole",
-          message: "Please select the employees new role.",
-          choices: "roles",
-        },
-      ])
-      .then((data) => {
-        db.query(
-          "UPDATE employee SET ? WHERE ?",
-          [
-            {
-              role_id: data.selectNewRole,
-            },
-            {
-              id: data.selectEmployee,
-            },
-          ],
-          function (err) {
-            if (err) throw err;
-          }
-        );
-        console.log("Database has been updated!");
-        viewAllRoles();
+    db.query("SELECT * FROM role", (err, roles) => {
+      if (err) console.log(err);
+      roles = roles.map((role) => {
+        return {
+          name: role.title,
+          value: role.id,
+        };
       });
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "selectEmployee",
+            message: "Select the Employee you wish to update.",
+            choices: employees,
+          },
+          {
+            type: "list",
+            name: "selectNewRole",
+            message: "Please select the employees new role.",
+            choices: roles,
+          },
+        ])
+        .then((data) => {
+          db.query(
+            "UPDATE employee SET ? WHERE ?",
+            [
+              {
+                role_id: data.selectNewRole,
+              },
+              {
+                id: data.selectEmployee,
+              },
+            ],
+            function (err) {
+              if (err) throw err;
+            }
+          );
+          console.log("Database has been updated!");
+          viewAllRoles();
+        });
+    });
   });
 };
 

@@ -8,8 +8,8 @@ For this challenge we had to code an employee tracker application from scratch. 
 
 https://github.com/MarkBrooks1985/mb-employee-tracker-systems
 
-video link goes here
+https://drive.google.com/file/d/1jbLnLTL3cJup-7XrZsRdwwNc8LVCX1vK/view
 
-![this is an image]()
-![this is an image]()
-![this is an image]()
+![this is an image](/assets/images/1.png)
+![this is an image](/assets/images/2.png)
+![this is an image](/assets/images/3.png)
